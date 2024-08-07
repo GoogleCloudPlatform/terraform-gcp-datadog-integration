@@ -4,7 +4,7 @@ This Terraform module streamlines the entire process to  **Integrate Google Clou
 
 While this module provides substantial security foundational principles, it's essential to note that in highly sensitive or production Google Cloud environments, additional layers of security and design principles should be thoughtfully analyzed and applied to uphold the highest standards of data protection and security principles (e.g. Utilize a bucket for TF state backup and encryption, egress traffic flow analysis, apply the module across various folders, disruption analysis etc).
 
-These deployment scripts are provided as is, without warranty. See [Copyright & License](https://github.com/googlecloudplatform/terraform-gcp-datadog-integration/blob/main/LICENSE).
+These deployment scripts are provided 'as is', without warranty. See [Copyright & License](https://github.com/googlecloudplatform/terraform-gcp-datadog-integration/blob/main/LICENSE).
 
 ## Solution diagram
 
