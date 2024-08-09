@@ -20,7 +20,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 * `google_compute_region_network_firewall_policy_rule`: Used to allow traffic from Dataflow workers private IP's to Datadog.
 * `google_compute_firewall`: Used to allow internal traffic between Dataflow worker machines.
 * `google_compute_router`: Used to serve as the control plane for network packets and to be attached to Cloud NAT.
-* `google_compute_router_nat`: Required for outbound connections to the internet for the Dataflow private IP's workers - <span style="color:red"> **IMPORTANT**</span>: Take into account that if you already have virtual machines (VMs) in the same subnet as the one Cloud NAT will use, those VMs will have outbound connectivity too.
+* `google_compute_router_nat`: Required for outbound connections to the internet for the Dataflow private IP's workers - <span style="color:red"> **IMPORTANT**</span>: Take into account that if you already have virtual machines (VMs) in the same subnet as the one that Cloud NAT will use, those VMs will have outbound connectivity too.
 
 **Note**: It's recommended to utilize a distinct project specifically for the deployment of all resources related this integration.
 
