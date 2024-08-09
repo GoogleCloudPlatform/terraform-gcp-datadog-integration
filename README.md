@@ -41,7 +41,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
   resource.type=gce_instance AND protoPayload.methodName=v1.compute.instances.stop
   ```
 
-  If your desired filter is too complicated, start with a basic one or an empty one (inclusion_filter = ""). After running 'Terraform apply', you can easily adjust the filter in the sink configs manually.
+  If your desired filter is too complicated, start with a basic one or an empty one (*inclusion_filter = ""*). After running 'Terraform apply', you can easily adjust the filter in the sink configs manually.
 
 ## Usage
 
