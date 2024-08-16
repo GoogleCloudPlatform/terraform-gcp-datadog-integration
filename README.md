@@ -1,6 +1,6 @@
 # Log Collection Integration - Google Cloud Platform to Datadog
 
-This Terraform module streamlines the entire process to  **Integrate Google Cloud Platform to Datadog for Log collection**, eliminating the manual work and effort outlined in the official [guide](https://docs.datadoghq.com/integrations/google_cloud_platform/#log-collection). The module simplifies integration, accelerates implementation, and addresses essential security considerations for a successful observability strategy.
+This Terraform module automates the integration between **Google Cloud Platform and Datadog for Log collection**, making the process faster and more efficient.  It builds upon the foundational overview provided in the official [Datadog guide](https://docs.datadoghq.com/integrations/google_cloud_platform/#log-collection). The module simplifies integration, accelerates implementation, and addresses essential security considerations for a successful observability strategy.
 
 While this module provides security foundational principles, it's essential to note that in highly sensitive or production Google Cloud environments, additional layers of security and design principles should be thoughtfully analyzed and applied to uphold the highest standards of data protection and security principles (e.g. Utilize a bucket for TF state backup and encryption, egress traffic flow analysis, apply the module across various folders, disruption analysis, etc).
 
