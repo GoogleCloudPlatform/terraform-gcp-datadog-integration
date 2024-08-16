@@ -13,7 +13,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 ## Resources created
 
 * `google_logging_folder_sink` OR `google_logging_project_sink`: Logs forwarder from Google Cloud Logging to Pub/Sub.
-* `google_pubsub_topic` & `google_pubsub_subscription`: Service that handle the Logs sent by Cloud Logging and deliver it to Dataflow.
+* `google_pubsub_topic` & `google_pubsub_subscription`: Service that handles the Logs sent by Cloud Logging and delivers it to Dataflow.
 * `google_secret_manager_secret` & `google_secret_manager_secret_version`: Used to store the Datadog API Key in a secure way.
 * `google_dataflow_job`: Create the Dataflow worker machines (Compute Engine) and generate a Dataflow job to pull logs from Pub/Sub subscription and export it to Datadog.
 * `google_storage_bucket`: Used to store Dataflow temporary files.
@@ -22,7 +22,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 * `google_compute_router`: Used to serve as the control plane for network packets and to be attached to Cloud NAT.
 * `google_compute_router_nat`: Required for outbound connections to the internet for the Dataflow private IP's workers - <span style="color:red"> **IMPORTANT**</span>: Take into account that if you already have virtual machines (VMs) in the same subnet as the one that Cloud NAT will use, those VMs will have outbound connectivity too.
 
-**Note**: It's recommended to utilize a distinct project specifically for the deployment of all resources related this integration.
+**Note**: It's recommended to utilize a distinct project specifically for the deployment of all resources related to this integration.
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 
 ## Usage
 
-Fill the `main.tf` file with your input variables and from the root folder of this repo (where the `main.tf` file exist) run the **terraform init, plan, and apply** commands.<br><br>
+Fill the `main.tf` file with your input variables and from the root folder of this repo (where the `main.tf` file exists) run the **terraform init, plan, and apply** commands.<br><br>
 
 ### Use a Log sink at the folder level
 
