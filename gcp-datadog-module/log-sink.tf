@@ -55,4 +55,5 @@ resource "google_storage_bucket" "temp_files_bucket" {
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
   public_access_prevention    = "enforced"
+  labels                      = { storage-bucket-label = "datadog_terraform" }
 }

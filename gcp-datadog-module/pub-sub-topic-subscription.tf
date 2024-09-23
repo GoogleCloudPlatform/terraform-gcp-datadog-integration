@@ -23,6 +23,7 @@ data "google_project" "project" {
 resource "google_pubsub_topic" "datadog_topic" {
   name    = var.topic_name
   project = var.project_id
+  labels  = { pubsub-label = "datadog_terraform" }
 }
 
 resource "google_pubsub_subscription" "datadog_topic_sub" {
