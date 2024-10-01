@@ -27,7 +27,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 ## Prerequisites
 
 * A Virtual Private Cloud (VPC) - Required in the '**`vpc_name`**' input variable.
-* A network subnet attached to the VPC and with [Private Google Access](https://cloud.google.com/vpc/docs/private-google-access) enabled (Resources will be created in the subnet's region) -  Required in the '**`subnet_name`**' input variable.
+* A network subnet attached to the VPC with [Private Google Access](https://cloud.google.com/vpc/docs/private-google-access) enabled (Resources will be created in the subnet's region) -  Required in the '**`subnet_name`**' input variable.
 * Datadog API Key - Required in the '**`datadog_api_key`**' input variable
 * Your Datadog Logs API URL (You can find it [here](https://docs.datadoghq.com/integrations/google_cloud_platform/#4-create-and-run-the-dataflow-job), **ensure** the site selector on the right part of the page is the correct for your Datadog site) - used in the  '**`datadog_site_url`**' input variable
 * A pre-selected inclusion filter for the logs you want to be sent to Datadog -  <span style="color:red"> **IMPORTANT**</span>: To make the filter works using Terraform you must use *unquoted* filters. 
