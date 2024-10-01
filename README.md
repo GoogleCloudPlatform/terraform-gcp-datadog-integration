@@ -27,7 +27,7 @@ These deployment scripts are provided 'as is', without warranty. See [Copyright 
 ## Prerequisites
 
 * A Virtual Private Cloud (VPC) - Required in the '**`vpc_name`**' input variable.
-* A network subnet attached to the VPC (Resources will be created in the subnet's region) -  Required in the '**`subnet_name`**' input variable.
+* A network subnet attached to the VPC and with [Private Google Access](https://cloud.google.com/vpc/docs/private-google-access) enabled (Resources will be created in the subnet's region) -  Required in the '**`subnet_name`**' input variable.
 * Datadog API Key - Required in the '**`datadog_api_key`**' input variable
 * Your Datadog Logs API URL (You can find it [here](https://docs.datadoghq.com/integrations/google_cloud_platform/#4-create-and-run-the-dataflow-job), **ensure** the site selector on the right part of the page is the correct for your Datadog site) - used in the  '**`datadog_site_url`**' input variable
 * A pre-selected inclusion filter for the logs you want to be sent to Datadog -  <span style="color:red"> **IMPORTANT**</span>: To make the filter works using Terraform you must use *unquoted* filters. 
@@ -59,7 +59,7 @@ module "datadog-integration" {
   subscription_name         = "datadog-export-sub"
   vpc_name                  = "vpc-name"
   subnet_name               = "subnet-name"
-  region                    = "us-east1"
+  subnet_region             = "us-east1"
   datadog_api_key           = "ab1c23d4ef56789a0bc1d23ef45ab6789"
   datadog_site_url          = "https://http-intake.logs.us5.datadoghq.com"
   log_sink_in_folder        = true
@@ -80,7 +80,7 @@ module "datadog-integration" {
   subscription_name         = "datadog-export-sub"
   vpc_name                  = "vpc-name"
   subnet_name               = "subnet-name"
-  region                    = "us-east1"
+  subnet_region             = "us-east1"
   datadog_api_key           = "ab1c23d4ef56789a0bc1d23ef45ab6789"
   datadog_site_url          = "https://http-intake.logs.us5.datadoghq.com"
   inclusion_filter          = ""
@@ -92,8 +92,8 @@ module "datadog-integration" {
 | Variable Name | Type | Description | Default Value |Example |
 |-|-|-|-|-|
 | project_id         | string | The ID of the Google Cloud  project.                                       | |"my-gcp-project"|
-| region             | string | The GCP region where resources will be deployed, **this must be the same region where the subnet exists.** | | "us-central1" |
-| dataflow_job_name | string  | Dataflow job name | "datadog-export-job" | "export-job"   |
+| subnet_region      | string | Region of the existing subnet, **all the resources will be created in this region.** | | "us-central1" |
+| dataflow_job_name  | string  | Dataflow job name | "datadog-export-job" | "export-job"   |
 | dataflow_temp_bucket_name| string  | GCS Bucket to write Dataflow temporary files. Must start and end with a letter or number. Must be between 3 and 63 characters. | "temp-files-dataflow-bucket-" | "my-temp-bucket" |
 | topic_name         | string | Name of the Pub/Sub Topic to receive logs from Google Cloud.        | datadog-export-topic | "my-datadog-topic" |
 | subscription_name  | string | Name of the Pub/Sub subscription to receive logs from Google Cloud. | datadog-export-sub   | "my-datadog-subscription" |
@@ -121,3 +121,7 @@ module "datadog-integration" {
 ## Authors
 
 * **Diego González** - [diegonz2](https://github.com/diegonz2)
+
+## Troubleshooting
+
+* If the Dataflow job fails with a *"Workflow failed. Causes: There was a problem refreshing your credentials"* error, re-run "terraform apply"

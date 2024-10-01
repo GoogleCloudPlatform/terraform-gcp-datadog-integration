@@ -22,7 +22,7 @@ resource "google_secret_manager_secret" "datadog_secret" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = var.subnet_region
       }
     }
   }

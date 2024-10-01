@@ -26,3 +26,9 @@ resource "google_project_service" "enable_apis" {
 
   service = each.key
 }
+
+# Wait for API activation
+resource "time_sleep" "dataflow_sa_creation" {
+  depends_on = [google_project_service.enable_apis]
+  create_duration = "35s"
+}

@@ -17,9 +17,9 @@ variable "project_id" {
   description = "The ID of the Google Cloud project."
 }
 
-variable "region" {
+variable "subnet_region" {
   type        = string
-  description = "The GCP region where resources will be deployed, this must be the same region where the subnet exists."
+  description = "Region of the existing subnet, all the resources will be created in this region."
 }
 
 variable "dataflow_job_name" {

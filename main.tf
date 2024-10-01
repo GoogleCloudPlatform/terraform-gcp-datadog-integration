@@ -8,7 +8,7 @@ module "datadog-integration" {
   subscription_name         = "datadog-export-sub"
   vpc_name                  = ""
   subnet_name               = ""
-  region                    = ""   # Specify the region of your existing subnet.
+  subnet_region             = ""   # Specify the region of your existing subnet.
   datadog_api_key           = ""
   datadog_site_url          = ""
   log_sink_in_folder        = true

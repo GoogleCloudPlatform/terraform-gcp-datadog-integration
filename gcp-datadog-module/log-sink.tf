@@ -50,7 +50,7 @@ resource "random_id" "random" {
 
 resource "google_storage_bucket" "temp_files_bucket" {
   name     = lower("${var.dataflow_temp_bucket_name}-${random_id.random.hex}")
-  location = var.region
+  location = var.subnet_region
 
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"

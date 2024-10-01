@@ -19,7 +19,7 @@ data "google_compute_network" "vpc" {
 
 data "google_compute_subnetwork" "dataflow_subnetwork" {
   name   = var.subnet_name
-  region = var.region
+  region = var.subnet_region
 }
 
 ###################################################################################################
@@ -31,7 +31,7 @@ resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" 
   name        = "allow-workers-to-datadog-policy"
   description = "Firewall policy to allow traffic from Dataflow Workers to Datadog"
   project     = var.project_id
-  region      = var.region
+  region      = var.subnet_region
 }
 
 # Create the Firewall rule for the policy
@@ -41,7 +41,7 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
   direction       = "EGRESS"
   firewall_policy = google_compute_region_network_firewall_policy.allow_datadog_policy.name
   priority        = 365000000
-  region          = var.region
+  region          = var.subnet_region
   rule_name       = "allow-datadog-fqdm"
 
   match {
@@ -61,7 +61,7 @@ resource "google_compute_region_network_firewall_policy_association" "vpc_associ
   attachment_target = data.google_compute_network.vpc.id
   firewall_policy   = google_compute_region_network_firewall_policy.allow_datadog_policy.name
   project           = var.project_id
-  region            = var.region
+  region            = var.subnet_region
 }
 
 ##############################################################################
@@ -118,7 +118,7 @@ resource "google_compute_router" "dataflow_router" {
   name    = "dataflow-router"
   network = data.google_compute_network.vpc.id
   project = var.project_id
-  region  = var.region
+  region  = var.subnet_region
 }
 
 resource "google_compute_router_nat" "nat" {
