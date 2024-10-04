@@ -21,7 +21,8 @@ resource "google_project_service" "enable_apis" {
     "pubsub.googleapis.com",
     "dataflow.googleapis.com",
     "logging.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com"
   ])
 
   service = each.key
