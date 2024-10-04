@@ -124,5 +124,5 @@ module "datadog-integration" {
 
 ## Troubleshooting
 
-* If the Dataflow job fails with a *"Workflow failed. Causes: There was a problem refreshing your credentials"* error, re-run "terraform apply"
-* If you receive errors about API's not being used/enabled in your project, re-run "terraform apply"
+* If the Dataflow job fails with a *"Workflow failed. Causes: There was a problem refreshing your credentials"* error, rerun "terraform apply"
+* If you receive errors about API's not being used/enabled in your project, wait some minutes and rerun "terraform apply"
