@@ -74,7 +74,7 @@ resource "google_compute_firewall" "ingress_rule_dataflow" {
   network  = data.google_compute_network.vpc.id
   priority = 200
 
-  # Allow inbound traffic on specific ports (12345-12346)
+  # Allow inbound traffic on specific ports
   allow {
     ports    = ["12345-12346"]
     protocol = "tcp"
@@ -97,7 +97,7 @@ resource "google_compute_firewall" "egress_dataflow_workers" {
   network  = data.google_compute_network.vpc.id
   priority = 210
 
-  # Allow outbound traffic on port 443 (HTTPS)
+  # Allow outbound traffic on specific ports
   allow {
     ports    = ["12345-12346"]
     protocol = "tcp"
