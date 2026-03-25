@@ -87,6 +87,16 @@ variable "datadog_site_url" {
   }
 }
 
+##############################################################################
+# Logging Configuration
+##############################################################################
+
+variable "log_sink_name" {
+  type        = string
+  description = "Name of the logging sink to route logs from GCP to Datadog."
+  default     = "datadog-export-sink"
+}
+
 variable "log_sink_in_folder" {
   type        = bool
   description = "Set to true if the Log Sink should be created at the folder level."

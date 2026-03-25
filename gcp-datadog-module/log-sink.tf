@@ -20,7 +20,7 @@
 resource "google_logging_project_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 0 : 1
 
-  name                   = "datadog-export-sink"
+  name                   = var.log_sink_name
   description            = "Project Sink to route logs from GCP to Datadog."
   project                = var.project_id
   destination            = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
@@ -33,7 +33,7 @@ resource "google_logging_project_sink" "datadog_export_sink" {
 resource "google_logging_folder_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 1 : 0
 
-  name             = "datadog-export-sink"
+  name             = var.log_sink_name
   description      = "Folder Sink to route logs from GCP to Datadog."
   folder           = var.folder_id
   destination      = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
