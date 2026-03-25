@@ -17,7 +17,8 @@
 ##################################################################
 
 resource "google_secret_manager_secret" "datadog_secret" {
-  secret_id = "datadog-api"
+  project   = var.project_id
+  secret_id = "datadog-api-key"
 
   replication {
     user_managed {

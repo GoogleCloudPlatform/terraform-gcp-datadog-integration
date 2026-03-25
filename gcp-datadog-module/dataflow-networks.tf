@@ -15,12 +15,14 @@
 # Fetch VPC/Subnet network details
 data "google_compute_network" "vpc" {
   name       = var.vpc_name
+  project    = var.project_id
   depends_on = [time_sleep.wait_for_apis]
 }
 
 data "google_compute_subnetwork" "dataflow_subnetwork" {
   name       = var.subnet_name
   region     = var.subnet_region
+  project    = var.project_id
   depends_on = [time_sleep.wait_for_apis]
 }
 
@@ -30,7 +32,7 @@ data "google_compute_subnetwork" "dataflow_subnetwork" {
 
 # Create the Firewall policy
 resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" {
-  name        = "allow-workers-to-datadog-policy"
+  name        = "allow-dataflow-workers-to-datadog"
   description = "Firewall policy to allow traffic from Dataflow Workers to Datadog"
   project     = var.project_id
   region      = var.subnet_region
@@ -44,8 +46,9 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
   direction       = "EGRESS"
   firewall_policy = google_compute_region_network_firewall_policy.allow_datadog_policy.name
   priority        = 365000000
+  project         = var.project_id
   region          = var.subnet_region
-  rule_name       = "allow-datadog-fqdm"
+  rule_name       = "allow-datadog-fqdn"
 
   match {
     src_ip_ranges = [data.google_compute_subnetwork.dataflow_subnetwork.ip_cidr_range]
@@ -60,7 +63,7 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
 
 # Attach the Firewall policy to a VPC
 resource "google_compute_region_network_firewall_policy_association" "vpc_association" {
-  name              = "vpc_association"
+  name              = "vpc-allow-datadog-fqdn"
   attachment_target = data.google_compute_network.vpc.id
   firewall_policy   = google_compute_region_network_firewall_policy.allow_datadog_policy.name
   project           = var.project_id
@@ -73,9 +76,9 @@ resource "google_compute_region_network_firewall_policy_association" "vpc_associ
 
 resource "google_compute_firewall" "ingress_rule_dataflow" {
   name     = "ingress-rule-dataflow-workers"
-  project  = var.project_id
   network  = data.google_compute_network.vpc.id
   priority = 200
+  project  = var.project_id
 
   # Allow inbound traffic on specific ports
   allow {
@@ -96,9 +99,9 @@ resource "google_compute_firewall" "ingress_rule_dataflow" {
 
 resource "google_compute_firewall" "egress_dataflow_workers" {
   name     = "egress-rule-dataflow-workers"
-  project  = var.project_id
   network  = data.google_compute_network.vpc.id
   priority = 210
+  project  = var.project_id
 
   # Allow outbound traffic on specific ports
   allow {
