@@ -121,16 +121,19 @@ resource "google_compute_firewall" "egress_dataflow_workers" {
 ##############################################################################
 
 resource "google_compute_router" "dataflow_router" {
-  name    = "dataflow-router"
+  count   = var.create_cloud_router ? 1 : 0
+  name    = "dataflow-workers-router"
   network = data.google_compute_network.vpc.id
   project = var.project_id
   region  = var.subnet_region
 }
 
 resource "google_compute_router_nat" "nat" {
-  name                               = "dataflow-machines-nat"
-  router                             = google_compute_router.dataflow_router.name
-  region                             = google_compute_router.dataflow_router.region
+  count                              = var.create_cloud_nat ? 1 : 0
+  name                               = "dataflow-workers-nat"
+  project                            = var.project_id
+  router                             = google_compute_router.dataflow_router[0].name
+  region                             = google_compute_router.dataflow_router[0].region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 

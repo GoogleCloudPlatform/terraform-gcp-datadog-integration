@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##############################################################################
+# Project Configuration
+##############################################################################
+
 variable "project_id" {
   type        = string
   description = "The ID of the Google Cloud project."
@@ -21,10 +25,54 @@ variable "project_id" {
   }
 }
 
+variable "enabled_apis" {
+  type        = list(string)
+  description = "List of GCP APIs to enable for the Datadog integration."
+  default = [
+    "secretmanager.googleapis.com",
+    "pubsub.googleapis.com",
+    "dataflow.googleapis.com",
+    "logging.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com",
+    "serviceusage.googleapis.com"
+  ]
+}
+
+##############################################################################
+# Network Configuration
+##############################################################################
+
+variable "vpc_name" {
+  type        = string
+  description = "Name of the VPC used for Dataflow Virtual Machines."
+}
+
+variable "subnet_name" {
+  type        = string
+  description = "Name of the subnets used for Dataflow Virtual Machines."
+}
+
 variable "subnet_region" {
   type        = string
   description = "Region of the existing subnet, all the resources will be created in this region."
 }
+
+variable "create_cloud_router" {
+  type        = bool
+  description = "Whether to create a Cloud Router for Dataflow workers. Set to false if using an existing router."
+  default     = true
+}
+
+variable "create_cloud_nat" {
+  type        = bool
+  description = "Whether to create a Cloud NAT for Dataflow workers outbound traffic. Set to false if using an existing NAT or if workers have external IPs."
+  default     = true
+}
+
+##############################################################################
+# Dataflow Configuration
+##############################################################################
 
 variable "dataflow_job_name" {
   type        = string
@@ -41,6 +89,10 @@ variable "dataflow_temp_bucket_name" {
     error_message = "The bucket name must be between 3 and 63 characters, start and end with a letter or number, and contain only lowercase letters, numbers, and hyphens."
   }
 }
+
+##############################################################################
+# Pub/Sub Configuration
+##############################################################################
 
 variable "topic_name" {
   type        = string
@@ -62,15 +114,9 @@ variable "subscription_name" {
   }
 }
 
-variable "vpc_name" {
-  type        = string
-  description = "Name of the VPC used for Dataflow Virtual Machines."
-}
-
-variable "subnet_name" {
-  type        = string
-  description = "Name of the subnets used for Dataflow Virtual Machines."
-}
+##############################################################################
+# Datadog Configuration
+##############################################################################
 
 variable "datadog_api_key" {
   type        = string
