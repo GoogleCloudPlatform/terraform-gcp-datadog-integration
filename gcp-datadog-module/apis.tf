@@ -16,21 +16,15 @@
 resource "google_project_service" "enable_apis" {
   project = var.project_id
 
-  for_each = toset([
-    "secretmanager.googleapis.com",
-    "pubsub.googleapis.com",
-    "dataflow.googleapis.com",
-    "logging.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "iam.googleapis.com",
-    "serviceusage.googleapis.com"
-  ])
+  for_each = toset(var.enabled_apis)
 
   service = each.key
 }
 
 # Wait for APIs to be fully enabled and Dataflow 'producer' SA to be created.
+# Only wait if APIs are actually being enabled to avoid unnecessary delays.
 resource "time_sleep" "wait_for_apis" {
+  count           = length(var.enabled_apis) > 0 ? 1 : 0
   depends_on      = [google_project_service.enable_apis]
   create_duration = "60s"
 }
