@@ -16,6 +16,16 @@
 # Project Configuration
 ##############################################################################
 
+variable "name_prefix" {
+  type        = string
+  description = "Prefix for all resource names to avoid collisions when deploying multiple instances in the same project. Set to empty string to disable prefixing."
+  default     = "datadog"
+  validation {
+    condition     = var.name_prefix == "" || can(regex("^[a-z][a-z0-9-]{0,9}$", var.name_prefix))
+    error_message = "The name prefix must be empty or start with a lowercase letter, contain only lowercase letters, numbers, and hyphens, and be at most 10 characters."
+  }
+}
+
 variable "project_id" {
   type        = string
   description = "The ID of the Google Cloud project."
@@ -23,6 +33,12 @@ variable "project_id" {
     condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.project_id))
     error_message = "The project ID must be between 6 and 30 characters, start with a letter, end with a letter or number, and consist only of lowercase letters, numbers, and hyphens."
   }
+}
+
+variable "labels" {
+  type        = map(string)
+  description = "A map of labels to apply to all resources that support labels."
+  default     = {}
 }
 
 variable "enabled_apis" {
@@ -37,6 +53,18 @@ variable "enabled_apis" {
     "iam.googleapis.com",
     "serviceusage.googleapis.com"
   ]
+}
+
+variable "disable_on_destroy" {
+  type        = bool
+  description = "Whether to disable the APIs when destroying the module."
+  default     = false
+}
+
+variable "disable_dependent_services" {
+  type        = bool
+  description = "Whether to disable dependent services when destroying the module."
+  default     = false
 }
 
 ##############################################################################
@@ -70,6 +98,12 @@ variable "create_cloud_nat" {
   default     = true
 }
 
+variable "existing_router_name" {
+  type        = string
+  description = "Name of an existing Cloud Router to use for Cloud NAT. Required when create_cloud_nat = true and create_cloud_router = false."
+  default     = ""
+}
+
 ##############################################################################
 # Dataflow Configuration
 ##############################################################################
@@ -78,6 +112,22 @@ variable "dataflow_job_name" {
   type        = string
   description = "Dataflow job name"
   default     = "datadog-export-job"
+}
+
+variable "dataflow_max_workers" {
+  type        = number
+  description = "The maximum number of Dataflow workers. Dataflow will autoscale up to this limit."
+  default     = 3
+  validation {
+    condition     = var.dataflow_max_workers >= 1
+    error_message = "max_workers must be at least 1."
+  }
+}
+
+variable "dataflow_machine_type" {
+  type        = string
+  description = "The machine type for Dataflow worker VMs."
+  default     = "n1-standard-4"
 }
 
 variable "dataflow_temp_bucket_name" {

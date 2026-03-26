@@ -18,7 +18,16 @@ resource "google_project_service" "enable_apis" {
 
   for_each = toset(var.enabled_apis)
 
-  service = each.key
+  service                    = each.key
+  disable_on_destroy         = var.disable_on_destroy
+  disable_dependent_services = var.disable_dependent_services
+
+  # Prevents Terraform timeout if API enablement is slow
+  timeouts {
+    create = "30m"
+    update = "40m"
+  }
+
 }
 
 # Wait for APIs to be fully enabled and Dataflow 'producer' SA to be created.
