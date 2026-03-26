@@ -20,6 +20,8 @@ resource "google_secret_manager_secret" "datadog_secret" {
   project   = var.project_id
   secret_id = "${local.resource_prefix}datadog-api-key"
 
+  labels = var.labels
+
   replication {
     user_managed {
       replicas {
