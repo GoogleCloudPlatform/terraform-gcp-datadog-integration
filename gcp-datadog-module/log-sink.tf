@@ -23,7 +23,7 @@ resource "google_logging_project_sink" "datadog_export_sink" {
   name                   = var.log_sink_name
   description            = "Project Sink to route logs from GCP to Datadog."
   project                = var.project_id
-  destination            = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
+  destination            = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
   unique_writer_identity = true
   filter                 = var.inclusion_filter
   depends_on             = [time_sleep.wait_for_apis]
@@ -36,7 +36,7 @@ resource "google_logging_folder_sink" "datadog_export_sink" {
   name             = var.log_sink_name
   description      = "Folder Sink to route logs from GCP to Datadog."
   folder           = var.folder_id
-  destination      = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
+  destination      = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
   filter           = var.inclusion_filter
   include_children = true
   depends_on       = [time_sleep.wait_for_apis]
@@ -57,7 +57,7 @@ resource "google_storage_bucket" "temp_files_bucket" {
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
   public_access_prevention    = "enforced"
-  labels                      = { storage-bucket-label = "datadog_terraform" }
+  labels                      = merge({ managed-by = "terraform" }, var.labels)
   soft_delete_policy {
     retention_duration_seconds = 0
   }

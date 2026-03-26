@@ -18,7 +18,7 @@
 
 resource "google_secret_manager_secret" "datadog_secret" {
   project   = var.project_id
-  secret_id = "datadog-api-key"
+  secret_id = "${local.resource_prefix}datadog-api-key"
 
   replication {
     user_managed {
