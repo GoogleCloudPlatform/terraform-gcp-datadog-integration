@@ -26,7 +26,8 @@ resource "google_dataflow_job" "pubsub_stream_to_datadog" {
   network                 = data.google_compute_network.vpc.name
   subnetwork              = data.google_compute_subnetwork.dataflow_subnetwork.self_link
   ip_configuration        = "WORKER_IP_PRIVATE"
-  max_workers             = 3
+  max_workers             = var.dataflow_max_workers
+  machine_type            = var.dataflow_machine_type
   enable_streaming_engine = true
   parameters = {
     inputSubscription     = google_pubsub_subscription.datadog_topic_sub.id,
