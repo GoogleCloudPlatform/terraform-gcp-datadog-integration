@@ -24,7 +24,8 @@ data "google_project" "project" {
 resource "google_pubsub_topic" "datadog_topic" {
   name    = var.topic_name
   project = var.project_id
-  labels  = merge({ managed-by = "terraform" }, var.labels)
+  labels  = var.labels
+
   depends_on = [time_sleep.wait_for_apis]
 }
 
@@ -51,7 +52,6 @@ resource "google_pubsub_topic_iam_member" "logs_sa_publishing_permissions" {
   project = var.project_id
   topic   = google_pubsub_topic.datadog_topic.id
   role    = "roles/pubsub.publisher"
-  # member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-logging.iam.gserviceaccount.com"
   member  = google_logging_project_sink.datadog_export_sink[0].writer_identity
 }
 
@@ -61,7 +61,6 @@ resource "google_pubsub_topic_iam_member" "logs_sa_publishing_permissions_folder
   project = var.project_id
   topic   = google_pubsub_topic.datadog_topic.id
   role    = "roles/pubsub.publisher"
-  # member  = "serviceAccount:service-folder-${var.folder_id}@gcp-sa-logging.iam.gserviceaccount.com"
   member  = google_logging_folder_sink.datadog_export_sink[0].writer_identity
 }
 
@@ -74,7 +73,7 @@ resource "google_pubsub_topic_iam_member" "logs_sa_publishing_permissions_folder
 resource "google_pubsub_topic" "output_dead_letter" {
   name    = "${var.topic_name}-deadletter"
   project = var.project_id
-  labels  = merge({ managed-by = "terraform" }, var.labels)
+  labels  = var.labels
 }
 
 resource "google_pubsub_subscription" "output_dead_letter_sub" {
