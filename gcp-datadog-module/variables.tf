@@ -19,7 +19,7 @@
 variable "name_prefix" {
   type        = string
   description = "Prefix for all resource names to avoid collisions when deploying multiple instances in the same project. Set to empty string to disable prefixing."
-  default     = "datadog"
+  default     = ""
   validation {
     condition     = var.name_prefix == "" || can(regex("^[a-z][a-z0-9-]{0,9}$", var.name_prefix))
     error_message = "The name prefix must be empty or start with a lowercase letter, contain only lowercase letters, numbers, and hyphens, and be at most 10 characters."
