@@ -18,7 +18,8 @@ resource "google_service_account" "dataflow_datadog_export_sa" {
   display_name = "Dataflow Service Account"
   description  = "Service account used by the Dataflow service to export logs to Datadog."
   project      = var.project_id
-  depends_on   = [time_sleep.wait_for_apis]
+
+  depends_on = [time_sleep.wait_for_apis]
 }
 
 # Project-level IAM roles (only those that cannot be scoped to a specific resource)

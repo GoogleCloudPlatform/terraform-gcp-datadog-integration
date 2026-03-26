@@ -30,7 +30,6 @@ resource "google_secret_manager_secret" "datadog_secret" {
     }
   }
 
-  # Ensure this resource depends on API services being enabled
   depends_on = [time_sleep.wait_for_apis]
 }
 

@@ -34,6 +34,7 @@ resource "google_project_service" "enable_apis" {
 # Only wait if APIs are actually being enabled to avoid unnecessary delays.
 resource "time_sleep" "wait_for_apis" {
   count           = length(var.enabled_apis) > 0 ? 1 : 0
-  depends_on      = [google_project_service.enable_apis]
   create_duration = "60s"
+
+  depends_on = [google_project_service.enable_apis]
 }
