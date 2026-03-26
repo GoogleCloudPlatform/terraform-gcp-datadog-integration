@@ -32,7 +32,7 @@ data "google_compute_subnetwork" "dataflow_subnetwork" {
 
 # Create the Firewall policy
 resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" {
-  name        = "allow-dataflow-workers-to-datadog"
+  name        = "${local.resource_prefix}allow-dataflow-to-datadog"
   description = "Firewall policy to allow traffic from Dataflow Workers to Datadog"
   project     = var.project_id
   region      = var.subnet_region
@@ -41,6 +41,7 @@ resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" 
 
 # Create the Firewall rule for the policy
 resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rule" {
+  rule_name       = "${local.resource_prefix}allow-dataflow-to-datadog-fqdn"
   action          = "allow"
   description     = "Firewall rule to allow traffic from Dataflow workers to Datadog FQDN"
   direction       = "EGRESS"
@@ -48,11 +49,10 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
   priority        = 365000000
   project         = var.project_id
   region          = var.subnet_region
-  rule_name       = "allow-datadog-fqdn"
 
   match {
     src_ip_ranges = [data.google_compute_subnetwork.dataflow_subnetwork.ip_cidr_range]
-    dest_fqdns    = [substr(var.datadog_site_url, 8, length(var.datadog_site_url) - 8)]
+    dest_fqdns    = [local.datadog_fqdn]
 
     layer4_configs {
       ip_protocol = "tcp"
@@ -63,7 +63,7 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
 
 # Attach the Firewall policy to a VPC
 resource "google_compute_region_network_firewall_policy_association" "vpc_association" {
-  name              = "vpc-allow-datadog-fqdn"
+  name              = "${local.resource_prefix}vpc-allow-dataflow-to-datadog"
   attachment_target = data.google_compute_network.vpc.id
   firewall_policy   = google_compute_region_network_firewall_policy.allow_datadog_policy.name
   project           = var.project_id
@@ -75,7 +75,7 @@ resource "google_compute_region_network_firewall_policy_association" "vpc_associ
 ##############################################################################
 
 resource "google_compute_firewall" "ingress_rule_dataflow" {
-  name     = "ingress-rule-dataflow-workers"
+  name     = "${local.resource_prefix}ingress-dataflow-workers"
   network  = data.google_compute_network.vpc.id
   priority = 200
   project  = var.project_id
@@ -98,7 +98,7 @@ resource "google_compute_firewall" "ingress_rule_dataflow" {
 ##############################################################################
 
 resource "google_compute_firewall" "egress_dataflow_workers" {
-  name     = "egress-rule-dataflow-workers"
+  name     = "${local.resource_prefix}egress-dataflow-workers"
   network  = data.google_compute_network.vpc.id
   priority = 210
   project  = var.project_id
@@ -122,18 +122,33 @@ resource "google_compute_firewall" "egress_dataflow_workers" {
 
 resource "google_compute_router" "dataflow_router" {
   count   = var.create_cloud_router ? 1 : 0
-  name    = "dataflow-workers-router"
+  name    = "${local.resource_prefix}dataflow-router"
   network = data.google_compute_network.vpc.id
   project = var.project_id
   region  = var.subnet_region
 }
 
+# Look up existing router when create_cloud_router = false but an existing name is provided
+data "google_compute_router" "existing" {
+  count   = !var.create_cloud_router && var.existing_router_name != "" ? 1 : 0
+  name    = var.existing_router_name
+  network = data.google_compute_network.vpc.id
+  project = var.project_id
+  region  = var.subnet_region
+}
+
+locals {
+  # Resolve the router name safely: prefer newly created, then existing, then empty
+  router_name   = var.create_cloud_router ? google_compute_router.dataflow_router[0].name : var.existing_router_name
+  router_region = var.create_cloud_router ? google_compute_router.dataflow_router[0].region : var.subnet_region
+}
+
 resource "google_compute_router_nat" "nat" {
   count                              = var.create_cloud_nat ? 1 : 0
-  name                               = "dataflow-workers-nat"
+  name                               = "${local.resource_prefix}dataflow-nat"
   project                            = var.project_id
-  router                             = google_compute_router.dataflow_router[0].name
-  region                             = google_compute_router.dataflow_router[0].region
+  router                             = local.router_name
+  region                             = local.router_region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 
@@ -141,4 +156,14 @@ resource "google_compute_router_nat" "nat" {
     enable = true
     filter = "ERRORS_ONLY"
   }
+
+  # Guard against the invalid combination: NAT requires a router
+  lifecycle {
+    precondition {
+      condition     = var.create_cloud_router || var.existing_router_name != ""
+      error_message = "When create_cloud_nat = true, you must either set create_cloud_router = true or provide an existing_router_name."
+    }
+  }
+
+  depends_on = [data.google_compute_router.existing]
 }
