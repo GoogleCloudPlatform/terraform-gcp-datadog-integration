@@ -26,7 +26,7 @@ resource "google_service_account" "dataflow_datadog_export_sa" {
 resource "google_project_iam_member" "dataflow_datadog_sa_roles" {
   project = var.project_id
   for_each = toset([
-    "roles/dataflow.worker",
+    "roles/dataflow.worker"
   ])
   role   = each.key
   member = "serviceAccount:${google_service_account.dataflow_datadog_export_sa.email}"

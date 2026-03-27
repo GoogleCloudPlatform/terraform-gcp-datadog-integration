@@ -14,7 +14,10 @@
 
 locals {
   # Extract the FQDN from the Datadog site URL, handling trailing slashes safely
-  datadog_fqdn    = trimsuffix(replace(var.datadog_site_url, "https://", ""), "/")
+  datadog_fqdn = trimsuffix(replace(var.datadog_site_url, "https://", ""), "/")
   # Prefix for all resources
   resource_prefix = var.name_prefix != "" ? "${var.name_prefix}-" : ""
+  # Resolve the router name safely: prefer newly created, then existing, then empty
+  router_name   = var.create_cloud_router ? google_compute_router.dataflow_router[0].name : var.existing_router_name
+  router_region = var.create_cloud_router ? google_compute_router.dataflow_router[0].region : var.subnet_region
 }

@@ -140,12 +140,6 @@ data "google_compute_router" "existing" {
   region  = var.subnet_region
 }
 
-locals {
-  # Resolve the router name safely: prefer newly created, then existing, then empty
-  router_name   = var.create_cloud_router ? google_compute_router.dataflow_router[0].name : var.existing_router_name
-  router_region = var.create_cloud_router ? google_compute_router.dataflow_router[0].region : var.subnet_region
-}
-
 resource "google_compute_router_nat" "nat" {
   count                              = var.create_cloud_nat ? 1 : 0
   name                               = "${local.resource_prefix}dataflow-nat"
