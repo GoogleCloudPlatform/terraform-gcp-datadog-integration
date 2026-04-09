@@ -20,7 +20,7 @@
 resource "google_logging_project_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 0 : 1
 
-  name                   = var.log_sink_name
+  name                   = "${local.resource_prefix}${var.log_sink_name}"
   description            = "Project Sink to route logs from GCP to Datadog."
   project                = var.project_id
   destination            = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
@@ -34,7 +34,7 @@ resource "google_logging_project_sink" "datadog_export_sink" {
 resource "google_logging_folder_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 1 : 0
 
-  name             = var.log_sink_name
+  name             = "${local.resource_prefix}${var.log_sink_name}"
   description      = "Folder Sink to route logs from GCP to Datadog."
   folder           = var.folder_id
   destination      = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
@@ -53,7 +53,7 @@ resource "random_id" "random" {
 }
 
 resource "google_storage_bucket" "temp_files_bucket" {
-  name     = lower("${var.dataflow_temp_bucket_name}-${random_id.random.hex}")
+  name     = lower("${local.resource_prefix}${var.dataflow_temp_bucket_name}-${random_id.random.hex}")
   project  = var.project_id
   location = var.subnet_region
 
