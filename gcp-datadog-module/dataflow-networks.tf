@@ -34,6 +34,8 @@ data "google_compute_subnetwork" "dataflow_subnetwork" {
 
 # Create the Firewall policy
 resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" {
+  count = var.create_firewall_rules ? 1 : 0
+
   name        = "${local.resource_prefix}allow-dataflow-to-datadog"
   description = "Firewall policy to allow traffic from Dataflow Workers to Datadog"
   project     = var.project_id
@@ -44,11 +46,13 @@ resource "google_compute_region_network_firewall_policy" "allow_datadog_policy" 
 
 # Create the Firewall rule for the policy
 resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rule" {
+  count = var.create_firewall_rules ? 1 : 0
+
   rule_name       = "${local.resource_prefix}allow-dataflow-to-datadog-fqdn"
   action          = "allow"
   description     = "Firewall rule to allow traffic from Dataflow workers to Datadog FQDN"
   direction       = "EGRESS"
-  firewall_policy = google_compute_region_network_firewall_policy.allow_datadog_policy.name
+  firewall_policy = var.create_firewall_rules ? google_compute_region_network_firewall_policy.allow_datadog_policy[0].name : ""
   priority        = 365000000
   project         = var.project_id
   region          = var.subnet_region
@@ -66,9 +70,11 @@ resource "google_compute_region_network_firewall_policy_rule" "allow_datadog_rul
 
 # Attach the Firewall policy to a VPC
 resource "google_compute_region_network_firewall_policy_association" "vpc_association" {
+  count = var.create_firewall_rules ? 1 : 0
+
   name              = "${local.resource_prefix}vpc-allow-dataflow-to-datadog"
   attachment_target = data.google_compute_network.vpc.id
-  firewall_policy   = google_compute_region_network_firewall_policy.allow_datadog_policy.name
+  firewall_policy   = var.create_firewall_rules ? google_compute_region_network_firewall_policy.allow_datadog_policy[0].name : ""
   project           = var.project_id
   region            = var.subnet_region
 }
@@ -78,6 +84,8 @@ resource "google_compute_region_network_firewall_policy_association" "vpc_associ
 ##############################################################################
 
 resource "google_compute_firewall" "ingress_rule_dataflow" {
+  count = var.create_firewall_rules ? 1 : 0
+
   name     = "${local.resource_prefix}ingress-dataflow-workers"
   network  = data.google_compute_network.vpc.id
   priority = 200
@@ -101,6 +109,8 @@ resource "google_compute_firewall" "ingress_rule_dataflow" {
 ##############################################################################
 
 resource "google_compute_firewall" "egress_dataflow_workers" {
+  count = var.create_firewall_rules ? 1 : 0
+
   name     = "${local.resource_prefix}egress-dataflow-workers"
   network  = data.google_compute_network.vpc.id
   priority = 210
@@ -119,6 +129,7 @@ resource "google_compute_firewall" "egress_dataflow_workers" {
   # Apply the rule to instances with "dataflow" tag
   target_tags = ["dataflow"]
 }
+
 ##############################################################################
 ############## CLOUD ROUTER AND CLOUD NAT FOR OUTBOUND TRAFFIC ###############
 ##############################################################################

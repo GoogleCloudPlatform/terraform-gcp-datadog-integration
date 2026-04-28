@@ -86,6 +86,12 @@ variable "subnet_region" {
   description = "Region of the existing subnet, all the resources will be created in this region."
 }
 
+variable "create_firewall_rules" {
+  type        = bool
+  description = "Whether to create firewall rules for Dataflow workers (Set to false if you already have one dataflow running in the same VPC)."
+  default     = true
+}
+
 variable "create_cloud_router" {
   type        = bool
   description = "Whether to create a Cloud Router for Dataflow workers. Set to false if using an existing router."
