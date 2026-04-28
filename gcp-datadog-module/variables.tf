@@ -12,6 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##############################################################################
+# Project Configuration
+##############################################################################
+
+variable "name_prefix" {
+  type        = string
+  description = "Prefix for all resource names to avoid collisions when deploying multiple instances in the same project. Set to empty string to disable prefixing."
+  default     = ""
+  validation {
+    condition     = var.name_prefix == "" || can(regex("^[a-z][a-z0-9-]{0,9}$", var.name_prefix))
+    error_message = "The name prefix must be empty or start with a lowercase letter, contain only lowercase letters, numbers, and hyphens, and be at most 10 characters."
+  }
+}
+
 variable "project_id" {
   type        = string
   description = "The ID of the Google Cloud project."
@@ -21,15 +35,105 @@ variable "project_id" {
   }
 }
 
+variable "labels" {
+  type        = map(string)
+  description = "A map of labels to apply to all resources that support labels."
+  default     = {}
+}
+
+variable "enabled_apis" {
+  type        = list(string)
+  description = "List of GCP APIs to enable for the Datadog integration."
+  default = [
+    "secretmanager.googleapis.com",
+    "pubsub.googleapis.com",
+    "dataflow.googleapis.com",
+    "logging.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com",
+    "serviceusage.googleapis.com"
+  ]
+}
+
+variable "disable_on_destroy" {
+  type        = bool
+  description = "Whether to disable the APIs when destroying the module."
+  default     = false
+}
+
+variable "disable_dependent_services" {
+  type        = bool
+  description = "Whether to disable dependent services when destroying the module."
+  default     = false
+}
+
+##############################################################################
+# Network Configuration
+##############################################################################
+
+variable "vpc_name" {
+  type        = string
+  description = "Name of the VPC used for Dataflow Virtual Machines."
+}
+
+variable "subnet_name" {
+  type        = string
+  description = "Name of the subnets used for Dataflow Virtual Machines."
+}
+
 variable "subnet_region" {
   type        = string
   description = "Region of the existing subnet, all the resources will be created in this region."
 }
 
+variable "create_firewall_rules" {
+  type        = bool
+  description = "Whether to create firewall rules for Dataflow workers (Set to false if you already have one dataflow running in the same VPC)."
+  default     = true
+}
+
+variable "create_cloud_router" {
+  type        = bool
+  description = "Whether to create a Cloud Router for Dataflow workers. Set to false if using an existing router."
+  default     = true
+}
+
+variable "create_cloud_nat" {
+  type        = bool
+  description = "Whether to create a Cloud NAT for Dataflow workers outbound traffic. Set to false if using an existing NAT or if workers have external IPs."
+  default     = true
+}
+
+variable "existing_router_name" {
+  type        = string
+  description = "Name of an existing Cloud Router to use for Cloud NAT. Required when create_cloud_nat = true and create_cloud_router = false."
+  default     = ""
+}
+
+##############################################################################
+# Dataflow Configuration
+##############################################################################
+
 variable "dataflow_job_name" {
   type        = string
   description = "Dataflow job name"
   default     = "datadog-export-job"
+}
+
+variable "dataflow_max_workers" {
+  type        = number
+  description = "The maximum number of Dataflow workers. Dataflow will autoscale up to this limit."
+  default     = 3
+  validation {
+    condition     = var.dataflow_max_workers >= 1
+    error_message = "max_workers must be at least 1."
+  }
+}
+
+variable "dataflow_machine_type" {
+  type        = string
+  description = "The machine type for Dataflow worker VMs."
+  default     = "n1-standard-4"
 }
 
 variable "dataflow_temp_bucket_name" {
@@ -41,6 +145,10 @@ variable "dataflow_temp_bucket_name" {
     error_message = "The bucket name must be between 3 and 63 characters, start and end with a letter or number, and contain only lowercase letters, numbers, and hyphens."
   }
 }
+
+##############################################################################
+# Pub/Sub Configuration
+##############################################################################
 
 variable "topic_name" {
   type        = string
@@ -62,15 +170,9 @@ variable "subscription_name" {
   }
 }
 
-variable "vpc_name" {
-  type        = string
-  description = "Name of the VPC used for Dataflow Virtual Machines."
-}
-
-variable "subnet_name" {
-  type        = string
-  description = "Name of the subnets used for Dataflow Virtual Machines."
-}
+##############################################################################
+# Datadog Configuration
+##############################################################################
 
 variable "datadog_api_key" {
   type        = string
@@ -85,6 +187,16 @@ variable "datadog_site_url" {
     condition     = can(regex("^https://", var.datadog_site_url))
     error_message = "The Datadog site URL must start with https://."
   }
+}
+
+##############################################################################
+# Logging Configuration
+##############################################################################
+
+variable "log_sink_name" {
+  type        = string
+  description = "Name of the logging sink to route logs from GCP to Datadog."
+  default     = "datadog-export-sink"
 }
 
 variable "log_sink_in_folder" {

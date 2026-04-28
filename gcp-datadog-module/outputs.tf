@@ -31,3 +31,32 @@ output "datadog_subscription_name" {
   description = "The name of the created Pub/Sub subscription."
   value       = google_pubsub_subscription.datadog_topic_sub.name
 }
+
+output "deadletter_topic_name" {
+  description = "The name of the dead-letter Pub/Sub topic for rejected log messages."
+  value       = google_pubsub_topic.output_dead_letter.name
+}
+
+output "deadletter_subscription_name" {
+  description = "The name of the dead-letter Pub/Sub subscription."
+  value       = google_pubsub_subscription.output_dead_letter_sub.name
+}
+
+output "dataflow_service_account_email" {
+  description = "The email of the Dataflow service account."
+  value       = google_service_account.dataflow_datadog_export_sa.email
+}
+
+output "secret_id" {
+  description = "The ID of the Secret Manager secret storing the Datadog API key."
+  value       = google_secret_manager_secret.datadog_secret.secret_id
+}
+
+output "log_sink_writer_identity" {
+  description = "The writer identity of the log sink (project or folder level)."
+  value = (
+    var.log_sink_in_folder
+    ? google_logging_folder_sink.datadog_export_sink[0].writer_identity
+    : google_logging_project_sink.datadog_export_sink[0].writer_identity
+  )
+}

@@ -20,26 +20,28 @@
 resource "google_logging_project_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 0 : 1
 
-  name                   = "datadog-export-sink"
+  name                   = "${local.resource_prefix}${var.log_sink_name}"
   description            = "Project Sink to route logs from GCP to Datadog."
   project                = var.project_id
-  destination            = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
+  destination            = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
   unique_writer_identity = true
   filter                 = var.inclusion_filter
-  depends_on             = [time_sleep.wait_for_apis]
+
+  depends_on = [time_sleep.wait_for_apis]
 }
 
 # Create a logging sink at the FOLDER scope | if variable 'log_sink_in_folder' is 'false' or not used this resource will not be created.
 resource "google_logging_folder_sink" "datadog_export_sink" {
   count = var.log_sink_in_folder ? 1 : 0
 
-  name             = "datadog-export-sink"
+  name             = "${local.resource_prefix}${var.log_sink_name}"
   description      = "Folder Sink to route logs from GCP to Datadog."
   folder           = var.folder_id
-  destination      = "pubsub.googleapis.com/projects/${var.project_id}/topics/${var.topic_name}"
+  destination      = "pubsub.googleapis.com/${google_pubsub_topic.datadog_topic.id}"
   filter           = var.inclusion_filter
   include_children = true
-  depends_on       = [time_sleep.wait_for_apis]
+
+  depends_on = [time_sleep.wait_for_apis]
 }
 
 #########################################################################
@@ -51,13 +53,14 @@ resource "random_id" "random" {
 }
 
 resource "google_storage_bucket" "temp_files_bucket" {
-  name     = lower("${var.dataflow_temp_bucket_name}-${random_id.random.hex}")
+  name     = lower("${local.resource_prefix}${var.dataflow_temp_bucket_name}-${random_id.random.hex}")
+  project  = var.project_id
   location = var.subnet_region
 
   uniform_bucket_level_access = true
   storage_class               = "STANDARD"
   public_access_prevention    = "enforced"
-  labels                      = { storage-bucket-label = "datadog_terraform" }
+  labels                      = var.labels
   soft_delete_policy {
     retention_duration_seconds = 0
   }

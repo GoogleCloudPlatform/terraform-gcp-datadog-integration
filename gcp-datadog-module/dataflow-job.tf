@@ -17,7 +17,8 @@
 #####################################################################
 
 resource "google_dataflow_job" "pubsub_stream_to_datadog" {
-  name                    = var.dataflow_job_name
+  name                    = "${local.resource_prefix}${var.dataflow_job_name}"
+  project                 = var.project_id
   template_gcs_path       = "gs://dataflow-templates-${var.subnet_region}/latest/Cloud_PubSub_to_Datadog"
   temp_gcs_location       = "gs://${google_storage_bucket.temp_files_bucket.id}/tmp_dir"
   region                  = var.subnet_region
@@ -25,7 +26,8 @@ resource "google_dataflow_job" "pubsub_stream_to_datadog" {
   network                 = data.google_compute_network.vpc.name
   subnetwork              = data.google_compute_subnetwork.dataflow_subnetwork.self_link
   ip_configuration        = "WORKER_IP_PRIVATE"
-  max_workers             = 3
+  max_workers             = var.dataflow_max_workers
+  machine_type            = var.dataflow_machine_type
   enable_streaming_engine = true
   parameters = {
     inputSubscription     = google_pubsub_subscription.datadog_topic_sub.id,
@@ -35,6 +37,7 @@ resource "google_dataflow_job" "pubsub_stream_to_datadog" {
     outputDeadletterTopic = google_pubsub_topic.output_dead_letter.id
   }
   on_delete = "cancel"
-  labels    = { dataflow-job-label = "datadog_terraform" }
+  labels    = var.labels
+
   depends_on = [time_sleep.wait_for_apis]
 }
